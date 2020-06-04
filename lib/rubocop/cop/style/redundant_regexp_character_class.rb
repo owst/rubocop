@@ -23,7 +23,6 @@ module RuboCop
       #   r = /[ab]/
       class RedundantRegexpCharacterClass < Cop
         include MatchRange
-        include RegexpLiteralHelp
 
         MSG_REDUNDANT_CHARACTER_CLASS = 'Redundant single-element character class, ' \
         '`%<char_class>s` can be replaced with `%<element>s`.'
@@ -44,7 +43,7 @@ module RuboCop
 
         def on_regexp(node)
           each_redundant_character_class(node) do |loc|
-            next if whitespace_in_free_space_mode?(node, loc)
+            next if whitespace_in_extended_regexp?(node, loc)
 
             add_offense(
               node,
@@ -78,8 +77,8 @@ module RuboCop
           loc.source[1..-2]
         end
 
-        def whitespace_in_free_space_mode?(node, loc)
-          return false unless freespace_mode_regexp?(node)
+        def whitespace_in_extended_regexp?(node, loc)
+          return false unless node.extended?
 
           /\[\s\]/.match?(loc.source)
         end

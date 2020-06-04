@@ -31,7 +31,6 @@ module RuboCop
       #   /[+\-]\d/
       class RedundantRegexpEscape < Cop
         include RangeHelp
-        include RegexpLiteralHelp
 
         MSG_REDUNDANT_ESCAPE = 'Redundant escape inside regexp literal'
 
@@ -111,12 +110,10 @@ module RuboCop
         end
 
         def pattern_source(node)
-          freespace_mode = freespace_mode_regexp?(node)
-
           node.children.reject(&:regopt_type?).map do |child|
             source = child.source
 
-            if freespace_mode
+            if node.extended?
               # Remove comments to avoid misleading results
               source.sub(/(?<!\\)#.*/, '')
             else
